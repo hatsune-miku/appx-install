@@ -12,6 +12,10 @@ fn elevated_change_policy() -> bool {
     run_elevated_pwsh("Set-ExecutionPolicy RemoteSigned -Scope CurrentUser")
 }
 
+fn elevated_obtain_developer_license() -> bool {
+    run_elevated_pwsh("Show-WindowsDeveloperLicenseRegistration")
+}
+
 fn run_install_ps1() -> bool {
     std::process::Command::new("powershell.exe")
         .args(&["-File", "Install.ps1"])
@@ -26,9 +30,15 @@ fn main() {
         std::process::exit(1);
     }
 
+    if !elevated_obtain_developer_license() {
+        println!("Error: Failed to elevate and obtain developer license");
+        println!("错误：提权并获取开发者许可证失败");
+        std::process::exit(2);
+    }
+
     if !run_install_ps1() {
         println!("Error: Failed to elevate and run Install.ps1");
         println!("错误：提权并运行 Install.ps1 失败");
-        std::process::exit(2);
+        std::process::exit(3);
     }
 }
